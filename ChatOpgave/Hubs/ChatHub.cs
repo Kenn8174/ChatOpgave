@@ -12,5 +12,10 @@ namespace ChatOpgave.Hubs
 		{
 			await Clients.All.SendAsync("ReceiveMessage", user, message);
 		}
+
+		public async Task SendEntry(string user)
+		{
+			await Clients.All.SendAsync("ReceiveEntry", user);
+		}
 	}
 }
