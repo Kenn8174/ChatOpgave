@@ -4,22 +4,13 @@
 @implements IAsyncDisposable
 
 <div class="row">
-	<div class="col-6">
+	<div class="col-auto">
 		<div class="form-group">
 			<label>
 				User:
 				<input @bind="userInput" disabled />
 			</label>
 		</div>
-		<div class="form-group">
-			<label>
-				Message:
-				<input @bind="messageInput" size="50" />
-			</label>
-		</div>
-		<button class="btn btn-primary" @onclick="Send" disabled="@(!IsConnected)">Send</button>
-	</div>
-	<div class="col-6">
 		<div class="overflow">
 			<ul>
 				@foreach (var message in messages)
@@ -27,6 +18,13 @@
 					<li>@message</li>
 				}
 			</ul>
+		</div>
+		<div class="form-group">
+			<label>
+				Message:
+				<input @bind="messageInput" size="50" />
+				<button class="btn btn-primary" @onclick="Send" disabled="@(!IsConnected)">Send</button>
+			</label>
 		</div>
 	</div>
 </div>
@@ -52,20 +50,19 @@
 
 		hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
 		{
-			var encodedMsg = $"{DateTime.Now.ToString("h:mm:ss")} {user}: {message}";
+			var encodedMsg = $"{DateTime.Now.ToString("HH:mm:ss")} {user}: {message}";
 			messages.Add(encodedMsg);
 			StateHasChanged();
 		});
 
 		hubConnection.On<string>("ReceiveEntry", (user) =>
 		{
-			var encodeMsg = $"{DateTime.Now.ToString("h:mm:ss")} {user}: Just joined the chat!";
+			var encodeMsg = $"{DateTime.Now.ToString("HH:mm:ss")} {user}: Just joined the chat!";
 			messages.Add(encodeMsg);
 			StateHasChanged();
 		});
-
+				
 		await hubConnection.StartAsync();
-
 	}
 
 	// Writes in the chat when someone joins
@@ -76,7 +73,6 @@
 			await SendEntry();
 		}
 	}
-
 
 	private async Task Send()
 	{
@@ -96,6 +92,7 @@
 
 	public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
 
+	// Disconnecter hubben, når applicationen lukkes
 	public async ValueTask DisposeAsync()
 	{
 		if (hubConnection != null)
